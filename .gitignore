@@ -1,0 +1,5 @@
+*.bat
+apply_update.py
+PREPARE_UPDATE.bat
+.DS_Store
+Thumbs.db
