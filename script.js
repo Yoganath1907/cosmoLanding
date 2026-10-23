@@ -54,5 +54,51 @@ if (lightbox) {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && lightbox.classList.contains('is-open')) hideLightbox();
+  if (event.key === 'Escape' && lightbox?.classList.contains('is-open')) hideLightbox();
 });
+
+
+// Hide the sticky navigation while scrolling down, reveal it when scrolling up.
+const siteHeader=document.querySelector('.site-header');
+let previousScrollY=window.scrollY,scrollScheduled=false;
+function updateHeaderVisibility() {
+  const y=window.scrollY,delta=y-previousScrollY;
+  if(y<70 || navLinks?.classList.contains('is-open')) siteHeader?.classList.remove('is-hidden');
+  else if(delta>5 && y>140) siteHeader?.classList.add('is-hidden');
+  else if(delta< -5) siteHeader?.classList.remove('is-hidden');
+  previousScrollY=y; scrollScheduled=false;
+}
+window.addEventListener('scroll',()=>{
+  if(!scrollScheduled){window.requestAnimationFrame(updateHeaderVisibility);scrollScheduled=true;}
+},{passive:true});
+
+// Read-only details for closed internship applications.
+const jobs={
+  backend:{title:'Backend Developer Intern',department:'Engineering',
+    about:'Assist in developing and maintaining internal applications and backend services.',
+    skills:['Basic Java and Spring Boot','REST API development','SQL and database fundamentals','Git and basic debugging'],
+    duties:['Develop APIs for internal applications','Integrate databases and handle data operations','Test backend functionality and resolve issues']},
+  marketing:{title:'Marketing Intern',department:'Marketing',
+    about:'Assist with digital marketing, brand visibility, content creation, and market research.',
+    skills:['Social media fundamentals','Content writing and communication','Canva and basic design','MS Excel and market research'],
+    duties:['Support brand visibility and digital campaigns','Help prepare social content and marketing materials','Conduct market and competitor research']}
+};
+const jobDialog=document.getElementById('jobDialog'),jobDetails=document.getElementById('jobDetails');
+if(jobDialog && jobDetails) {
+  document.querySelectorAll('.career-card[data-job]').forEach(card=>card.addEventListener('click',()=>{
+    const job=jobs[card.dataset.job]; if(!job)return;
+    const ul=items=>'<ul>'+items.map(item=>'<li>'+item+'</li>').join('')+'</ul>';
+    jobDetails.innerHTML=
+      '<p class="job-modal-kicker">'+job.department+' / Internship · Applications Closed</p>'+
+      '<h2 id="jobDialogTitle">'+job.title+'</h2>'+
+      '<p class="job-modal-meta">Chennai · 2 Months · Unpaid Internship</p>'+
+      '<h3>About the Role</h3><p>'+job.about+'</p>'+
+      '<h3>Required Skills</h3>'+ul(job.skills)+
+      '<h3>Responsibilities</h3>'+ul(job.duties)+
+      '<div class="job-modal-footer"><p class="job-modal-deadline">Application Deadline: 20 October 2026</p>'+
+      '<button class="job-modal-apply" type="button" disabled>Applications Closed</button></div>';
+    jobDialog.showModal();
+  }));
+  document.querySelector('.job-modal-close')?.addEventListener('click',()=>jobDialog.close());
+  jobDialog.addEventListener('click',event=>{if(event.target===jobDialog)jobDialog.close();});
+}
