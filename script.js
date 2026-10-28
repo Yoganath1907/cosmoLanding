@@ -102,3 +102,36 @@ if(jobDialog && jobDetails) {
   document.querySelector('.job-modal-close')?.addEventListener('click',()=>jobDialog.close());
   jobDialog.addEventListener('click',event=>{if(event.target===jobDialog)jobDialog.close();});
 }
+
+// Clean section links use real GitHub Pages directories, so they also work on reload.
+(() => {
+  const sections = ['services', 'projects', 'gallery', 'about', 'contact'];
+  if (!document.querySelector('.hero')) return;
+  const sectionFromLocation = () => {
+    const path = location.pathname.split('/').filter(Boolean)[0];
+    const hash = location.hash.slice(1);
+    return sections.includes(hash) ? hash : sections.includes(path) ? path : null;
+  };
+  const showSection = (id, behavior = 'auto') => {
+    if (id) document.getElementById(id)?.scrollIntoView({behavior});
+    else window.scrollTo({top: 0, behavior});
+  };
+  const initial = sectionFromLocation();
+  const cleanPath = initial ? '/' + initial + '/' : '/';
+  if (location.pathname !== cleanPath || location.hash) history.replaceState(null, '', cleanPath + location.search);
+  if (initial) requestAnimationFrame(() => showSection(initial));
+  document.querySelectorAll('a[href]').forEach(link => {
+    const url = new URL(link.href, location.href);
+    const id = url.pathname.split('/').filter(Boolean)[0];
+    if (url.origin !== location.origin || (!sections.includes(id) && url.pathname !== '/')) return;
+    link.addEventListener('click', event => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const target = sections.includes(id) ? id : null;
+      const path = target ? '/' + target + '/' : '/';
+      if (location.pathname !== path || location.hash) history.pushState(null, '', path);
+      showSection(target, 'smooth');
+    });
+  });
+  window.addEventListener('popstate', () => showSection(sectionFromLocation()));
+})();
