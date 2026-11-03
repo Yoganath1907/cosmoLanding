@@ -74,7 +74,7 @@ mark { color: var(--gold); background: none; }
 .brand img {
   width: 44px;
   height: 34px;
-  object-fit: cover;
+  object-fit: contain;
   border: 1px solid rgba(241, 200, 76, 0.25);
 }
 .brand strong {
