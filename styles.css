@@ -75,7 +75,7 @@ mark { color: var(--gold); background: none; }
   width: 44px;
   height: 34px;
   object-fit: contain;
-  border: 1px solid rgba(241, 200, 76, 0.25);
+  mix-blend-mode: screen;
 }
 .brand strong {
   display: block;
